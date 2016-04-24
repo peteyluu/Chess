@@ -6,6 +6,7 @@ class Piece
   attr_accessor :pos
 
   def initialize(pos = nil, board = nil, color = nil)
+    debugger
     unless color.nil?
       @pos = pos
       @board = board
@@ -31,14 +32,16 @@ class Piece
   end
 
   def is_empty?(pos)
-    row, col = pos
-    curr_piece = @board[row][col]
+    # row, col = pos
+    debugger
+    curr_piece = @board.get_piece(pos)
     curr_piece.empty?
   end
 
   def ally?(pos)
-    row, col = pos
-    curr_piece = @board[row][col]
+    # row, col = pos
+    # curr_piece = @board[row][col]
+    curr_piece = @board.get_piece(pos)
     curr_piece.is_ally?(@color)
   end
 
@@ -47,8 +50,9 @@ class Piece
   end
 
   def enemy?(pos)
-    row, col = pos
-    curr_piece = @board[row][col]
+    # row, col = pos
+    # curr_piece = @board[row][col]
+    curr_piece = @board.get_piece(pos)
     curr_piece.is_enemy?(@color)
   end
 
@@ -135,8 +139,10 @@ class Piece
   end
 
   def piece_in_the_way?(pos)
-    row, col = pos
-    return false if @board[row][col].is_a?(NullPiece)
+    # row, col = pos
+    # return false if @board[row][col].is_a?(NullPiece)
+    curr_piece = @board.get_piece(pos)
+    return false if curr_piece.is_a?(NullPiece)
     true
   end
 

@@ -124,10 +124,15 @@ class Board
     @grid[row][col] = piece_obj
   end
 
-  def [](pos)
+  # def [](pos)
+  #   row, col = pos
+  #   debugger
+  #   @grid[row][col]
+  # end
+
+  def get_piece(pos)
     row, col = pos
-    debugger
-    @grid[row][col]
+    return @grid[row][col]
   end
 
   def dup
@@ -172,13 +177,13 @@ class Board
     row, col = piece_pos
     case piece_str
     when "queen"
-      @grid[row][col] = Queen.new(piece_pos, @grid, piece_color)
+      @grid[row][col] = Queen.new(piece_pos, self, piece_color)
     when "rook"
-      @grid[row][col] = Rook.new(piece_pos, @grid, piece_color)
+      @grid[row][col] = Rook.new(piece_pos, self, piece_color)
     when "bishop"
-      @grid[row][col] = Bishop.new(piece_pos, @grid, piece_color)
+      @grid[row][col] = Bishop.new(piece_pos, self, piece_color)
     when "knight"
-      @grid[row][col] = Knight.new(piece_pos, @grid, piece_color)
+      @grid[row][col] = Knight.new(piece_pos, self, piece_color)
     end
   end
 
@@ -208,44 +213,40 @@ class Board
   end
 
   def setup_kings
-    @grid[0][4] = King.new([0, 4], @grid, :black)
-    @grid[7][4] = King.new([7, 4], @grid, :white)
+    @grid[0][4] = King.new([0, 4], self, :black)
+    @grid[7][4] = King.new([7, 4], self, :white)
   end
 
   def setup_queens
-    @grid[0][3] = Queen.new([0, 3], @grid, :black)
-    @grid[7][3] = Queen.new([7, 3], @grid, :white)
+    @grid[0][3] = Queen.new([0, 3], self, :black)
+    @grid[7][3] = Queen.new([7, 3], self, :white)
   end
 
   def setup_bishops
-    @grid[0][2] = Bishop.new([0, 2], @grid, :black)
-    @grid[0][5] = Bishop.new([0, 5], @grid, :black)
-    @grid[7][2] = Bishop.new([7, 2], @grid, :white)
-    @grid[7][5] = Bishop.new([7, 5], @grid, :white)
+    @grid[0][2] = Bishop.new([0, 2], self, :black)
+    @grid[0][5] = Bishop.new([0, 5], self, :black)
+    @grid[7][2] = Bishop.new([7, 2], self, :white)
+    @grid[7][5] = Bishop.new([7, 5], self, :white)
   end
 
   def setup_knights
-    @grid[0][1] = Knight.new([0, 1], @grid, :black)
-    @grid[0][6] = Knight.new([0, 6], @grid, :black)
-    @grid[7][1] = Knight.new([7, 1], @grid, :white)
-    @grid[7][6] = Knight.new([7, 6], @grid, :white)
+    @grid[0][1] = Knight.new([0, 1], self, :black)
+    @grid[0][6] = Knight.new([0, 6], self, :black)
+    @grid[7][1] = Knight.new([7, 1], self, :white)
+    @grid[7][6] = Knight.new([7, 6], self, :white)
   end
 
   def setup_rooks
-    @grid[0][0] = Rook.new([0, 0], @grid, :black)
-    @grid[0][7] = Rook.new([0, 7], @grid, :black)
-    @grid[7][0] = Rook.new([7, 0], @grid, :white)
-    @grid[7][7] = Rook.new([7, 7], @grid, :white)
+    @grid[0][0] = Rook.new([0, 0], self, :black)
+    @grid[0][7] = Rook.new([0, 7], self, :black)
+    @grid[7][0] = Rook.new([7, 0], self, :white)
+    @grid[7][7] = Rook.new([7, 7], self, :white)
   end
 
   def setup_pawns
     8.times do |i|
-      @grid[1][i] = Pawn.new([1, i], @grid, :black)
-      @grid[6][i] = Pawn.new([6, i], @grid, :white)
+      @grid[1][i] = Pawn.new([1, i], self, :black)
+      @grid[6][i] = Pawn.new([6, i], self, :white)
     end
   end
 end
-
-# if __FILE__ == $PROGRAM_NAME
-#   b = Board.new
-# end
