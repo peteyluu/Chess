@@ -3,7 +3,7 @@ require_relative 'board'
 require_relative 'player'
 
 class ChessGame
-  # attr_reader :board, :display, :players, :curr_player
+  attr_reader :board, :display, :players, :curr_player
 
   def initialize
     @board = Board.new
