@@ -2,14 +2,14 @@ require 'byebug'
 require_relative 'piece'
 
 class Board
-  attr_reader :board
+  # attr_reader :board
 
   def self.init_board
     Array.new(8) { Array.new(8, NullPiece.new) }
   end
 
   def initialize(fill_board = true)
-    @board = Board.init_board
+    @grid = Board.init_board
     populate if fill_board == true
   end
 
@@ -20,11 +20,11 @@ class Board
   # How do I write a method to check if the current piece/player is in check??
   def move(turn_color, start_pos, end_pos)
     row_i, col_i = start_pos
-    if @board[row_i][col_i].empty?
+    if @grid[row_i][col_i].empty?
       raise "There is no piece at start"
     end
 
-    curr_piece = @board[row_i][col_i]
+    curr_piece = @grid[row_i][col_i]
     if curr_piece.color != turn_color
       raise "You must move your own piece"
     elsif !curr_piece.new_moves.include?(end_pos)
@@ -35,7 +35,7 @@ class Board
 
     move!(start_pos, end_pos)
   end
-  
+
   # But #valid_moves needs to make a move on a duped board to see if a player is left in check. For this reason, write a method Board#move! which makes a move without checking if it is valid.
   def move!(start_pos, end_pos)
     curr_piece = self[start_pos]
@@ -56,8 +56,13 @@ class Board
   # 1) finding the position of the king on the board THEN
   # 2) seeing if any of the opposing pieces can move to that position.
   def in_check?(color)
+    # debugger
     king_pos = find_king(color).pos
-    pieces.any? { |piece| piece.color != color && piece.new_moves.include?(king_pos) }
+    pieces.each do |piece|
+      if piece.color != color && piece.new_moves.include?(king_pos)
+        return true
+      end
+    end
     false
   end
 
@@ -116,12 +121,13 @@ class Board
 
   def []=(pos, piece_obj)
     row, col = pos
-    @board[row][col] = piece_obj
+    @grid[row][col] = piece_obj
   end
 
   def [](pos)
     row, col = pos
-    @board[row][col]
+    debugger
+    @grid[row][col]
   end
 
   def dup
@@ -159,20 +165,20 @@ class Board
   end
 
   def pieces
-    @board.flatten.select { |piece| !piece.empty? }
+    @grid.flatten.select { |piece| !piece.empty? }
   end
 
   def revive_piece(piece_str, piece_pos, piece_color)
     row, col = piece_pos
     case piece_str
     when "queen"
-      @board[row][col] = Queen.new(piece_pos, @board, piece_color)
+      @grid[row][col] = Queen.new(piece_pos, @grid, piece_color)
     when "rook"
-      @board[row][col] = Rook.new(piece_pos, @board, piece_color)
+      @grid[row][col] = Rook.new(piece_pos, @grid, piece_color)
     when "bishop"
-      @board[row][col] = Bishop.new(piece_pos, @board, piece_color)
+      @grid[row][col] = Bishop.new(piece_pos, @grid, piece_color)
     when "knight"
-      @board[row][col] = Knight.new(piece_pos, @board, piece_color)
+      @grid[row][col] = Knight.new(piece_pos, @grid, piece_color)
     end
   end
 
@@ -202,40 +208,40 @@ class Board
   end
 
   def setup_kings
-    @board[0][4] = King.new([0, 4], @board, :black)
-    @board[7][4] = King.new([7, 4], @board, :white)
+    @grid[0][4] = King.new([0, 4], @grid, :black)
+    @grid[7][4] = King.new([7, 4], @grid, :white)
   end
 
   def setup_queens
-    @board[0][3] = Queen.new([0, 3], @board, :black)
-    @board[7][3] = Queen.new([7, 3], @board, :white)
+    @grid[0][3] = Queen.new([0, 3], @grid, :black)
+    @grid[7][3] = Queen.new([7, 3], @grid, :white)
   end
 
   def setup_bishops
-    @board[0][2] = Bishop.new([0, 2], @board, :black)
-    @board[0][5] = Bishop.new([0, 5], @board, :black)
-    @board[7][2] = Bishop.new([7, 2], @board, :white)
-    @board[7][5] = Bishop.new([7, 5], @board, :white)
+    @grid[0][2] = Bishop.new([0, 2], @grid, :black)
+    @grid[0][5] = Bishop.new([0, 5], @grid, :black)
+    @grid[7][2] = Bishop.new([7, 2], @grid, :white)
+    @grid[7][5] = Bishop.new([7, 5], @grid, :white)
   end
 
   def setup_knights
-    @board[0][1] = Knight.new([0, 1], @board, :black)
-    @board[0][6] = Knight.new([0, 6], @board, :black)
-    @board[7][1] = Knight.new([7, 1], @board, :white)
-    @board[7][6] = Knight.new([7, 6], @board, :white)
+    @grid[0][1] = Knight.new([0, 1], @grid, :black)
+    @grid[0][6] = Knight.new([0, 6], @grid, :black)
+    @grid[7][1] = Knight.new([7, 1], @grid, :white)
+    @grid[7][6] = Knight.new([7, 6], @grid, :white)
   end
 
   def setup_rooks
-    @board[0][0] = Rook.new([0, 0], @board, :black)
-    @board[0][7] = Rook.new([0, 7], @board, :black)
-    @board[7][0] = Rook.new([7, 0], @board, :white)
-    @board[7][7] = Rook.new([7, 7], @board, :white)
+    @grid[0][0] = Rook.new([0, 0], @grid, :black)
+    @grid[0][7] = Rook.new([0, 7], @grid, :black)
+    @grid[7][0] = Rook.new([7, 0], @grid, :white)
+    @grid[7][7] = Rook.new([7, 7], @grid, :white)
   end
 
   def setup_pawns
     8.times do |i|
-      @board[1][i] = Pawn.new([1, i], @board, :black)
-      @board[6][i] = Pawn.new([6, i], @board, :white)
+      @grid[1][i] = Pawn.new([1, i], @grid, :black)
+      @grid[6][i] = Pawn.new([6, i], @grid, :white)
     end
   end
 end
