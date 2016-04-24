@@ -22,8 +22,10 @@ class ChessGame
         start_pos, end_pos = players[curr_player].make_move
         board.move(curr_player, start_pos, end_pos)
         rotate_curr_player!
-      rescue
+      rescue Exception => e
         puts "Couldn't make the move!"
+        puts e.message
+        sleep(3)
         retry
       end
     end

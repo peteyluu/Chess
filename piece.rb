@@ -6,7 +6,6 @@ class Piece
   attr_accessor :pos
 
   def initialize(pos = nil, board = nil, color = nil)
-    debugger
     unless color.nil?
       @pos = pos
       @board = board
@@ -33,7 +32,6 @@ class Piece
 
   def is_empty?(pos)
     # row, col = pos
-    debugger
     curr_piece = @board.get_piece(pos)
     curr_piece.empty?
   end
