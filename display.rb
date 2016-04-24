@@ -10,7 +10,7 @@ class Display
   end
 
   def build_grid
-    @board.board.map.with_index do |row, i|
+    @board.grid.map.with_index do |row, i|
       build_row(row, i)
     end
   end

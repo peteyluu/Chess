@@ -2,7 +2,7 @@ require 'byebug'
 require_relative 'piece'
 
 class Board
-  # attr_reader :board
+  attr_reader :grid
 
   def self.init_board
     Array.new(8) { Array.new(8, NullPiece.new) }
