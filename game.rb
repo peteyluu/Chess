@@ -29,7 +29,8 @@ class ChessGame
         retry
       end
     end
-    puts "DONE!"
+    rotate_curr_player!
+    puts "#{@curr_player} wins!"
   end
 
   private

@@ -17,7 +17,6 @@ class Board
     setup_pieces
   end
 
-  # How do I write a method to check if the current piece/player is in check??
   def move(turn_color, start_pos, end_pos)
     row_i, col_i = start_pos
     if @grid[row_i][col_i].empty?
@@ -36,11 +35,9 @@ class Board
     move!(start_pos, end_pos)
   end
 
-  # But #valid_moves needs to make a move on a duped board to see if a player is left in check. For this reason, write a method Board#move! which makes a move without checking if it is valid.
   def move!(start_pos, end_pos)
     curr_piece = self[start_pos]
-    # raise "piece cannot move there!" unless curr_piece.new_moves.include?(end_pos)
-
+    
     self[end_pos] = curr_piece
     row, col = end_pos
     if self[end_pos].is_a?(Pawn) && (row == 0 || row == 7)
@@ -49,14 +46,10 @@ class Board
     else
       curr_piece.pos = end_pos
     end
-    self[start_pos] = NullPiece.new(start_pos)
+    self[start_pos] = NullPiece.new
   end
 
-  # the board class should have a method #in_check?(color) that returns whether a player is in check. You can implement this by
-  # 1) finding the position of the king on the board THEN
-  # 2) seeing if any of the opposing pieces can move to that position.
   def in_check?(color)
-    # debugger
     king_pos = find_king(color).pos
     pieces.each do |piece|
       if piece.color != color && piece.new_moves.include?(king_pos)
@@ -65,14 +58,6 @@ class Board
     end
     false
   end
-
-  # If the player is in check, and if none of the player's pieces have any #valid_moves, then the player is in checkmate.
-
-  # Piece#valid_moves
-  # You want a method on Piece that filters out the #moves of a Piece that would leave the player in check.
-  # A good approach is to write a Piece#move_into_check?(pos) method that will:
-  # 1) Dup the Board and perform the move.
-  # 2) Look to see if the player is in check after the move (Board#in_check?)
 
   def move_into_check?(start_pos, end_pos, color)
     new_board = self.dup
@@ -97,23 +82,6 @@ class Board
     false
   end
 
-  # # how do i protect the King, when it is Board#in_check?
-  # # S1: The king can move to other positions if available...
-  # # S2: The path can be blocked, preventing the king Board#in_check?/check_mate?
-  # # S3:
-  # def filter_king_moves(king_moves, color)
-  #   moves = []
-  #   king_moves.each do |king_move|
-  #     unless pieces.any? { |piece| piece.color != color && piece.new_moves.include?(king_move) }
-  #       moves << king_move
-  #     end
-  #     # can protect the king from harm....?
-  #     # !pieces.any? { |piece| piece.color == color && piece.new_moves.include?(king_move) }
-  #     #   moves << king_move
-  #   end
-  #   moves
-  # end
-
   def in_bounds?(pos)
     row, col = pos
     row.between?(0, 7) && col.between?(0, 7)
@@ -126,7 +94,6 @@ class Board
 
   def [](pos)
     row, col = pos
-    # debugger
     @grid[row][col]
   end
 
@@ -136,22 +103,11 @@ class Board
   end
 
   def dup
-    # debugger
     test_board = Board.new(false)
     pieces.each do |piece|
       new_piece = piece.class.new(piece.pos, test_board, piece.color)
       test_board.add_piece(new_piece, new_piece.pos)
-      # row, col = new_piece.pos
-      # test_board[row][col] = new_piece
     end
-    # 8.times do |i|
-    #   8.times do |j|
-    #     curr_piece = test_board[i][j]
-    #     next if curr_piece.empty?
-    #     new_piece = curr_piece.class.new(curr_piece.pos, test_board, curr_piece.color)
-    #     test_board.add_piece(new_piece, new_piece.pos)
-    #   end
-    # end
     test_board
   end
 
@@ -173,6 +129,7 @@ class Board
     @grid.flatten.select { |piece| !piece.empty? }
   end
 
+  # change method name to #promote_queen
   def revive_piece(piece_str, piece_pos, piece_color)
     row, col = piece_pos
     case piece_str

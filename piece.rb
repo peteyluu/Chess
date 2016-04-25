@@ -31,14 +31,11 @@ class Piece
   end
 
   def is_empty?(pos)
-    # row, col = pos
     curr_piece = @board.get_piece(pos)
     curr_piece.empty?
   end
 
   def ally?(pos)
-    # row, col = pos
-    # curr_piece = @board[row][col]
     curr_piece = @board.get_piece(pos)
     curr_piece.is_ally?(@color)
   end
@@ -48,8 +45,6 @@ class Piece
   end
 
   def enemy?(pos)
-    # row, col = pos
-    # curr_piece = @board[row][col]
     curr_piece = @board.get_piece(pos)
     curr_piece.is_enemy?(@color)
   end
@@ -83,10 +78,7 @@ class Piece
       end
     end
     filter_moves
-    print self.color
-    print self.class
     curr_moves = @h_delta.values.flatten(1).uniq
-    p curr_moves
     @h_delta = Hash.new { |h, k| h[k] = [] }
     curr_moves.sort
   end
@@ -137,23 +129,9 @@ class Piece
   end
 
   def piece_in_the_way?(pos)
-    # row, col = pos
-    # return false if @board[row][col].is_a?(NullPiece)
     curr_piece = @board.get_piece(pos)
     return false if curr_piece.is_a?(NullPiece)
     true
-  end
-
-  def deep_dup(array)
-    a = []
-    array.each do |el|
-      if el.is_a?(Array)
-        a << deep_dup(el)
-      else
-        a << el
-      end
-    end
-    a
   end
 end
 
