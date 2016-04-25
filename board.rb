@@ -29,7 +29,7 @@ class Board
       raise "You must move your own piece"
     elsif !curr_piece.new_moves.include?(end_pos)
       raise "Piece can't move there"
-    elsif in_check?(turn_color)
+    elsif move_into_check?(start_pos, end_pos, turn_color)
       raise "You cannot move when you are in check"
     end
 
@@ -124,11 +124,11 @@ class Board
     @grid[row][col] = piece_obj
   end
 
-  # def [](pos)
-  #   row, col = pos
-  #   debugger
-  #   @grid[row][col]
-  # end
+  def [](pos)
+    row, col = pos
+    # debugger
+    @grid[row][col]
+  end
 
   def get_piece(pos)
     row, col = pos
