@@ -19,7 +19,7 @@ class ChessGame
     # debugger
     until @board.check_mate?(curr_player)
       begin
-        start_pos, end_pos = players[curr_player].make_move
+        start_pos, end_pos = players[curr_player].make_move(board)
         board.move(curr_player, start_pos, end_pos)
         rotate_curr_player!
       rescue Exception => e

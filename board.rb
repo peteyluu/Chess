@@ -20,16 +20,16 @@ class Board
   def move(turn_color, start_pos, end_pos)
     row_i, col_i = start_pos
     if @grid[row_i][col_i].empty?
-      raise "There is no piece at start"
+      raise "There is no piece at start!"
     end
 
     curr_piece = @grid[row_i][col_i]
     if curr_piece.color != turn_color
-      raise "You must move your own piece"
+      raise "You must move your own piece!"
     elsif !curr_piece.new_moves.include?(end_pos)
-      raise "Piece can't move there"
+      raise "Piece can't move there!"
     elsif move_into_check?(start_pos, end_pos, turn_color)
-      raise "You cannot move when you are in check"
+      raise "You cannot move when you are in check!"
     end
 
     move!(start_pos, end_pos)
@@ -37,7 +37,7 @@ class Board
 
   def move!(start_pos, end_pos)
     curr_piece = self[start_pos]
-    
+
     self[end_pos] = curr_piece
     row, col = end_pos
     if self[end_pos].is_a?(Pawn) && (row == 0 || row == 7)
@@ -95,6 +95,10 @@ class Board
   def [](pos)
     row, col = pos
     @grid[row][col]
+  end
+
+  def get_new_moves_from_piece(piece)
+    piece.new_moves
   end
 
   def get_piece(pos)

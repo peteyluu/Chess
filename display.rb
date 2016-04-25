@@ -7,6 +7,7 @@ class Display
   def initialize(board)
     @board = board
     @cursor_pos = [0, 0]
+    @reachable = []
   end
 
   def build_grid
@@ -26,9 +27,17 @@ class Display
     if [i, j] == @cursor_pos
       bg = :light_red
     elsif (i + j).odd?
-      bg = :light_blue
+      if @reachable.include?([i, j])
+        bg = :light_green
+      else
+        bg = :light_blue
+      end
     else
-      bg = :blue
+      if @reachable.include?([i, j])
+        bg = :green
+      else
+        bg = :blue
+      end
     end
     { background: bg, color: :white}
   end
@@ -46,5 +55,10 @@ class Display
       count -= 1
     end
     puts "   " + ('a'..'h').to_a.join("    ")
+    @reachable = []
+  end
+
+  def reachable(moves)
+    @reachable = moves
   end
 end
