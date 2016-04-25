@@ -37,6 +37,14 @@ class Display
     system("clear")
     puts "Fill the grid"
     puts "Arrow keys to move, space or enter to confirm"
-    build_grid.each { |row| puts row.join }
+    puts "   " + ('a'..'h').to_a.join("    ")
+    count = 8
+    build_grid.each do |row|
+      print "#{count}"
+      print row.join
+      print "#{count}\n"
+      count -= 1
+    end
+    puts "   " + ('a'..'h').to_a.join("    ")
   end
 end
