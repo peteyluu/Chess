@@ -42,12 +42,51 @@ class Board
     row, col = end_pos
 
     if self[end_pos].is_a?(Pawn) && (row == 0 || row == 7)
-      self[end_pos] = NullPiece.new
       input = get_input
       promote_piece(input, end_pos, curr_piece.color)
     else
       curr_piece.pos = end_pos
     end
+
+    if self[end_pos].is_a?(Rook)
+      self[end_pos].moved = true
+    end
+
+    diff_col = (start_pos[1] - end_pos[1]).abs
+
+    if self[end_pos].is_a?(King) && self[start_pos].moved == false && diff_col == 2 && (row == 0 || row == 7)
+      temp_rooks = find_rooks(curr_piece.color)
+
+      curr_rook = nil
+      new_rook_pos = nil
+      diff_col = start_pos[1] + end_pos[1]
+      if diff_col == 6
+        diff_col /= 2
+        if curr_piece.color == :black
+          curr_rook = temp_rooks.find { |rook| rook.pos == [0, 0] }
+          new_rook_pos = [0, diff_col]
+        else
+          curr_rook = temp_rooks.find { |rook| rook.pos == [7, 0] }
+          new_rook_pos = [7, diff_col]
+        end
+      elsif diff_col == 10
+        diff_col /= 2
+        if curr_piece.color == :black
+          curr_rook = temp_rooks.find { |rook| rook.pos == [0, 7] }
+          new_rook_pos = [0, diff_col]
+        else
+          curr_rook = temp_rooks.find { |rook| rook.pos == [7, 7] }
+          new_rook_pos = [7, diff_col]
+        end
+      end
+      prev_pos = curr_rook.pos
+      curr_rook_piece = self[curr_rook.pos]
+      self[new_rook_pos] = curr_rook_piece
+      curr_rook_piece.pos = new_rook_pos
+      curr_rook_piece.moved = true
+      self[prev_pos] = NullPiece.new
+    end
+    self[end_pos].moved = true
 
     self[start_pos] = NullPiece.new
   end
@@ -66,6 +105,19 @@ class Board
     new_board = self.dup
     new_board.move!(start_pos, end_pos)
     new_board.in_check?(color)
+  end
+
+  def move_thru_check?(start_pos, end_pos, color)
+    row, col = end_pos
+    opponent_pieces = pieces.select { |piece| piece.color != color }
+    if col > 4
+      temp_pos = [row, col - 1]
+      return false if opponent_pieces.any? { |piece| piece.new_moves.include?(temp_pos) }
+    else
+      temp_pos = [row, col + 1]
+      return false if opponent_pieces.any? { |piece| piece. new_moves.include?(temp_pos) }
+    end
+    true
   end
 
   def check_mate?(color)
@@ -125,6 +177,11 @@ class Board
 
   private
 
+  def find_rooks(color)
+    found_rooks = []
+    found_rooks = pieces.select { |piece| piece.is_a?(Rook) && piece.color == color && piece.moved == false }
+  end
+
   def find_king(color)
     curr_pieces = pieces
     curr_king = curr_pieces.find { |piece| piece.is_a?(King) && piece.color == color }
@@ -139,30 +196,45 @@ class Board
   def promote_piece(piece_str, piece_pos, piece_color)
     row, col = piece_pos
     case piece_str
-    when "queen"
+    when "promote"
       @grid[row][col] = Queen.new(piece_pos, self, piece_color)
-    when "rook"
-      @grid[row][col] = Rook.new(piece_pos, self, piece_color)
-    when "bishop"
-      @grid[row][col] = Bishop.new(piece_pos, self, piece_color)
-    when "knight"
+    when "unpromote"
       @grid[row][col] = Knight.new(piece_pos, self, piece_color)
     end
   end
 
   def get_input
-    pieces = ["queen", "rook", "bishop", "knight"]
-    puts "Which piece would you like to promote? (i.e. queen)"
+    print "Would you like to promote or unpromote? (i.e. promote) "
     input = gets.chomp
-    until pieces.include?(input)
+    input.downcase!
+    until input == "promote" || input == "unpromote"
       input = gets.chomp
+      input.downcase!
     end
     input
   end
 
   def setup_pieces
-    setup_back_row
-    setup_pawns
+    setup_castling
+    @grid[1][1] = Pawn.new([1, 1], self, :black)
+    @grid[6][0] = Pawn.new([6, 0], self, :white)
+    # setup_back_row
+    # setup_pawns
+  end
+
+  def setup_castling
+    @grid[0][4] = King.new([0, 4], self, :black, false)
+    @grid[7][4] = King.new([7, 4], self, :white, false)
+    # @grid[0][0] = Rook.new([0, 0], self, :black, false)
+    # @grid[0][7] = Rook.new([0, 7], self, :black, false)
+    # @grid[7][0] = Rook.new([7, 0], self, :white, false)
+    # @grid[7][7] = Rook.new([7, 7], self, :white, false)
+    # @grid[7][5] = Bishop.new([7, 5], self, :white)
+    # @grid[0][2] = Bishop.new([0, 2], self, :black)
+    # @grid[5][0] = Queen.new([5, 0], self, :white)
+    # @grid[2][0] = Queen.new([2, 0], self, :black)
+    # @grid[4][7] = Bishop.new([4, 7], self, :white)
+    # @grid[3][7] = Bishop.new([3, 7], self, :black)
   end
 
   def setup_back_row
@@ -174,8 +246,8 @@ class Board
   end
 
   def setup_kings
-    @grid[0][4] = King.new([0, 4], self, :black)
-    @grid[7][4] = King.new([7, 4], self, :white)
+    @grid[0][4] = King.new([0, 4], self, :black, false)
+    @grid[7][4] = King.new([7, 4], self, :white, false)
   end
 
   def setup_queens
@@ -198,10 +270,10 @@ class Board
   end
 
   def setup_rooks
-    @grid[0][0] = Rook.new([0, 0], self, :black)
-    @grid[0][7] = Rook.new([0, 7], self, :black)
-    @grid[7][0] = Rook.new([7, 0], self, :white)
-    @grid[7][7] = Rook.new([7, 7], self, :white)
+    @grid[0][0] = Rook.new([0, 0], self, :black, false)
+    @grid[0][7] = Rook.new([0, 7], self, :black, false)
+    @grid[7][0] = Rook.new([7, 0], self, :white, false)
+    @grid[7][7] = Rook.new([7, 7], self, :white, false)
   end
 
   def setup_pawns
