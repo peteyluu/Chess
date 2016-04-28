@@ -1,5 +1,5 @@
 require 'byebug'
-require_relative 'piece'
+require_relative 'dummy_piece'
 
 class Board
   attr_reader :grid
@@ -216,8 +216,6 @@ class Board
 
   def setup_pieces
     setup_castling
-    @grid[1][1] = Pawn.new([1, 1], self, :black)
-    @grid[6][0] = Pawn.new([6, 0], self, :white)
     # setup_back_row
     # setup_pawns
   end
@@ -225,16 +223,21 @@ class Board
   def setup_castling
     @grid[0][4] = King.new([0, 4], self, :black, false)
     @grid[7][4] = King.new([7, 4], self, :white, false)
-    # @grid[0][0] = Rook.new([0, 0], self, :black, false)
-    # @grid[0][7] = Rook.new([0, 7], self, :black, false)
-    # @grid[7][0] = Rook.new([7, 0], self, :white, false)
-    # @grid[7][7] = Rook.new([7, 7], self, :white, false)
+    @grid[0][0] = Rook.new([0, 0], self, :black, false)
+    @grid[0][7] = Rook.new([0, 7], self, :black, false)
+    @grid[7][0] = Rook.new([7, 0], self, :white, false)
+    @grid[7][7] = Rook.new([7, 7], self, :white, false)
     # @grid[7][5] = Bishop.new([7, 5], self, :white)
     # @grid[0][2] = Bishop.new([0, 2], self, :black)
     # @grid[5][0] = Queen.new([5, 0], self, :white)
     # @grid[2][0] = Queen.new([2, 0], self, :black)
     # @grid[4][7] = Bishop.new([4, 7], self, :white)
     # @grid[3][7] = Bishop.new([3, 7], self, :black)
+    # @grid[1][1] = Pawn.new([1, 1], self, :black)
+    # @grid[6][0] = Pawn.new([6, 0], self, :white)
+
+    @grid[0][3] = Queen.new([0, 3], self, :black)
+    @grid[7][3] = Queen.new([7, 3], self, :white)
   end
 
   def setup_back_row
