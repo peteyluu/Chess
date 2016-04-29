@@ -1,4 +1,3 @@
-require 'byebug'
 require 'colorize'
 
 class Piece
@@ -57,35 +56,33 @@ class Piece
 
   def pawn_new_moves
     moves = []
-    deltas = move_dirs
-    deltas.each do |dx, dy|
+    move_dirs.each do |dx, dy|
       temp_pos = [pos[0] + dx, pos[1] + dy]
-      moves << temp_pos if in_bounds?(temp_pos)
+      moves << temp_pos if @board.in_bounds?(temp_pos)
     end
     filter_moves(moves)
   end
 
   def stepable_new_moves
-    possible_moves = moves(pos)
-    filter_moves(possible_moves)
+    filter_moves(moves(pos))
   end
 
   def slidable_new_moves
-    possible_moves = moves(pos)
+    moves(pos)
     @h_delta.each do |delta_k, values_pos|
       values_pos.each do |v_pos|
         moves(v_pos, delta_k)
       end
     end
     filter_moves
-    curr_moves = @h_delta.values.flatten(1).uniq
-    @h_delta = Hash.new { |h, k| h[k] = [] }
-    curr_moves.sort
+    curr_moves = @h_delta.values.flatten(1)
+    @h_delta.clear
+    curr_moves
   end
 
   def filter_moves(moves = nil)
     filtered_moves = []
-    if moves.nil?
+    if self.is_a?(SlidingPieces) && moves.nil?
       @h_delta.each do |delta_k, values_pos|
         prev_enemy = nil
         values_pos.each_with_index do |v_pos, idx|
@@ -123,11 +120,6 @@ class Piece
     end
   end
 
-  def in_bounds?(pos)
-    row, col = pos
-    row.between?(0, 7) && col.between?(0, 7)
-  end
-
   def piece_in_the_way?(pos)
     curr_piece = @board.get_piece(pos)
     return false if curr_piece.is_a?(NullPiece)
@@ -142,24 +134,24 @@ class NullPiece < Piece
 end
 
 class SlidingPieces < Piece
+  ROOK_MOVES = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+  BISHOP_MOVES = [[-1, -1], [-1, 1], [1, -1], [1, 1]]
+
   def moves(pos_val, delta_key = nil)
     moves = []
     if delta_key.nil?
-      one_moves_away = move_dirs
-      curr_pos = pos_val
-      one_moves_away.each do |dx, dy|
+      move_dirs.each do |dx, dy|
         curr_delta = [dx, dy]
-        temp_curr_pos = [curr_pos[0] + dx, curr_pos[1] + dy]
-        if in_bounds?(temp_curr_pos)
+        temp_curr_pos = [pos_val[0] + dx, pos_val[1] + dy]
+        if @board.in_bounds?(temp_curr_pos)
           @h_delta[curr_delta] << temp_curr_pos
           moves << temp_curr_pos
         end
       end
     else
-      curr_pos = pos_val
       dx, dy = delta_key
-      temp_curr_pos = [curr_pos[0] + dx, curr_pos[1] + dy]
-      if in_bounds?(temp_curr_pos)
+      temp_curr_pos = [pos_val[0] + dx, pos_val[1] + dy]
+      if @board.in_bounds?(temp_curr_pos)
         @h_delta[delta_key] << temp_curr_pos
         moves << temp_curr_pos
       end
@@ -169,13 +161,14 @@ class SlidingPieces < Piece
 end
 
 class SteppingPieces < Piece
+  KNIGHT_MOVES = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]]
+  KING_MOVES = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
+
   def moves(pos)
     moves = []
-    one_moves_away = move_dirs
-    curr_pos = pos
-    one_moves_away.each do |dx, dy|
-      temp_curr_pos = [curr_pos[0] + dx, curr_pos[1] + dy]
-      moves << temp_curr_pos if in_bounds?(temp_curr_pos)
+    move_dirs.each do |dx, dy|
+      temp_curr_pos = [pos[0] + dx, pos[1] + dy]
+      moves << temp_curr_pos if @board.in_bounds?(temp_curr_pos)
     end
     moves
   end
@@ -201,56 +194,56 @@ class Pawn < Piece
   end
 
   def to_s
-    img = @color == :black ? '  ♟  ' : '  ♙  '
+    @color == :black ? '  ♟  ' : '  ♙  '
   end
 end
 
 class Rook < SlidingPieces
   def move_dirs
-    [[-1, 0], [1, 0], [0, -1], [0, 1]]
+    ROOK_MOVES
   end
 
   def to_s
-    img = @color == :black ? '  ♜  ' : '  ♖  '
+    @color == :black ? '  ♜  ' : '  ♖  '
   end
 end
 
 class Knight < SteppingPieces
   def move_dirs
-    [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]]
+    KNIGHT_MOVES
   end
 
   def to_s
-    img = @color == :black ? '  ♞  ' : '  ♘  '
+    @color == :black ? '  ♞  ' : '  ♘  '
   end
 end
 
 class Bishop < SlidingPieces
   def move_dirs
-    [[-1, -1], [-1, 1], [1, -1], [1, 1]]
+    BISHOP_MOVES
   end
 
   def to_s
-    img = @color == :black ? '  ♝  ' : '  ♗  '
+    @color == :black ? '  ♝  ' : '  ♗  '
   end
 end
 
 class Queen < SlidingPieces
   def move_dirs
-    [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
+    ROOK_MOVES + BISHOP_MOVES
   end
 
   def to_s
-    img = @color == :black ? '  ♛  ' : '  ♕  '
+    @color == :black ? '  ♛  ' : '  ♕  '
   end
 end
 
 class King < SteppingPieces
   def move_dirs
-    [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
+    KING_MOVES
   end
 
   def to_s
-    img = @color == :black ? '  ♚  ' : '  ♔  '
+    @color == :black ? '  ♚  ' : '  ♔  '
   end
 end

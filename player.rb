@@ -1,4 +1,3 @@
-require 'byebug'
 require_relative 'display'
 
 class Player
@@ -14,7 +13,6 @@ class HumanPlayer < Player
   def make_move(board)
     start_pos, end_pos = nil, nil
     until start_pos && end_pos
-      # debugger
       display.render
       if start_pos
         curr_piece = board.get_piece(start_pos)

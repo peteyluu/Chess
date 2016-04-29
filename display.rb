@@ -55,7 +55,7 @@ class Display
       count -= 1
     end
     puts "   " + ('a'..'h').to_a.join("    ")
-    @reachable = []
+    @reachable.clear
   end
 
   def reachable(moves)

@@ -3,6 +3,7 @@ require_relative 'piece'
 
 class Board
   attr_reader :grid
+  PIECES = ["queen", "rook", "bishop", "knight"]
 
   def self.init_board
     Array.new(8) { Array.new(8, NullPiece.new) }
@@ -37,14 +38,11 @@ class Board
 
   def move!(start_pos, end_pos)
     curr_piece = self[start_pos]
-
     self[end_pos] = curr_piece
     row, col = end_pos
 
     if self[end_pos].is_a?(Pawn) && (row == 0 || row == 7)
-      self[end_pos] = NullPiece.new
-      input = get_input
-      promote_piece(input, end_pos, curr_piece.color)
+      promote_piece(get_input, end_pos, curr_piece.color)
     else
       curr_piece.pos = end_pos
     end
@@ -74,8 +72,7 @@ class Board
       curr_pieces = pieces.select { |piece| piece.color == color }
       curr_pieces.each do |piece|
         piece.new_moves.each do |move|
-          curr_piece_pos = piece.pos
-          if !move_into_check?(curr_piece_pos, move, color)
+          if !move_into_check?(piece.pos, move, color)
             moves << move
           end
         end
@@ -147,14 +144,15 @@ class Board
       @grid[row][col] = Bishop.new(piece_pos, self, piece_color)
     when "knight"
       @grid[row][col] = Knight.new(piece_pos, self, piece_color)
+    else
+      puts "Only queens, rooks, bishops, knights allowed!"
     end
   end
 
   def get_input
-    pieces = ["queen", "rook", "bishop", "knight"]
-    puts "Which piece would you like to promote? (i.e. queen)"
-    input = gets.chomp
-    until pieces.include?(input)
+    print "Which piece would you like to promote? (i.e. queen) "
+    input = ""
+    until PIECES.include?(input)
       input = gets.chomp
     end
     input

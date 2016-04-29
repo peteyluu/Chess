@@ -6,6 +6,7 @@ class ChessGame
   attr_reader :board, :display, :players, :curr_player
 
   def initialize
+    # debugger
     @board = Board.new
     @display = Display.new(@board)
     @players = {
@@ -16,7 +17,6 @@ class ChessGame
   end
 
   def play
-    # debugger
     until @board.check_mate?(curr_player)
       begin
         start_pos, end_pos = players[curr_player].make_move(board)
