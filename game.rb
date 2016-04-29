@@ -6,7 +6,6 @@ class ChessGame
   attr_reader :board, :display, :players, :curr_player
 
   def initialize
-    # debugger
     @board = Board.new
     @display = Display.new(@board)
     @players = {
